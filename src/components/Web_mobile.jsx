@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Calculator, 
   Globe, 
@@ -57,6 +57,58 @@ const MOBILE_FEATURES = [
   { feature: "User Profile (SSO)", basic: false, basicPlus: true, advanced: true },
   { feature: "Basic App Landing", basic: true, basicPlus: true, advanced: true }
 ];
+
+// Component definitions outside of render
+const TierBadge = ({ type, current, set }) => (
+  <button
+    onClick={() => set(type)}
+    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+      current === type 
+        ? 'bg-blue-600 text-white shadow-md' 
+        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+    }`}
+  >
+    {type === 'basicPlus' ? 'Basic+' : type.charAt(0).toUpperCase() + type.slice(1)}
+  </button>
+);
+
+const InputField = ({ label, value, onChange, icon: Icon, suffix = "", min = 0, disabled = false }) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
+      {Icon && <Icon size={12} />} {label}
+    </label>
+    <div className="relative">
+      <input
+        type="number"
+        min={min}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50'}`}
+      />
+      {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">{suffix}</span>}
+    </div>
+  </div>
+);
+
+const DropdownField = ({ label, value, onChange, options, icon: Icon }) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
+      {Icon && <Icon size={12} />} {label}
+    </label>
+    <select
+      value={value}
+      onChange={(e) => onChange(isNaN(e.target.value) ? e.target.value : Number(e.target.value))}
+      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+    >
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  </div>
+);
 
 export const WebandMobile = () => {
   // --- Constants ---
@@ -207,57 +259,6 @@ export const WebandMobile = () => {
     };
   }, [feDevs, beDevs, mobDevs, devOpsDevs, projectMonths, infraType, qaPercentage, pmPercentage, markupPercentage, maintHours, includeWeb, includeMob, thirdPartyItems]);
 
-  const TierBadge = ({ type, current, set }) => (
-    <button
-      onClick={() => set(type)}
-      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-        current === type 
-          ? 'bg-blue-600 text-white shadow-md' 
-          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-      }`}
-    >
-      {type === 'basicPlus' ? 'Basic+' : type.charAt(0).toUpperCase() + type.slice(1)}
-    </button>
-  );
-
-  const InputField = ({ label, value, onChange, icon: Icon, suffix = "", min = 0, disabled = false }) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-        {Icon && <Icon size={12} />} {label}
-      </label>
-      <div className="relative">
-        <input
-          type="number"
-          min={min}
-          value={value}
-          disabled={disabled}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50'}`}
-        />
-        {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">{suffix}</span>}
-      </div>
-    </div>
-  );
-
-  const DropdownField = ({ label, value, onChange, options, icon: Icon }) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-        {Icon && <Icon size={12} />} {label}
-      </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(isNaN(e.target.value) ? e.target.value : Number(e.target.value))}
-        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
@@ -294,7 +295,7 @@ export const WebandMobile = () => {
               <span className="font-bold text-slate-700 mr-4">Project Scope:</span>
               <button 
                 onClick={() => setIncludeWeb(!includeWeb)}
-                className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all ${includeWeb ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}
+                className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all bg-black/5 border-emerald-200 text-emerald-600`}
               >
                 {includeWeb ? <CheckSquare size={20} /> : <Square size={20} />}
                 <Globe size={18} />
@@ -302,7 +303,7 @@ export const WebandMobile = () => {
               </button>
               <button 
                 onClick={() => setIncludeMob(!includeMob)}
-                className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all ${includeMob ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}
+                className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all bg-black/5 border-indigo-200 text-indigo-600`}
               >
                 {includeMob ? <CheckSquare size={20} /> : <Square size={20} />}
                 <Smartphone size={18} />
